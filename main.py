@@ -85,8 +85,8 @@ def cycle_cleaner(folder):
         downloads_folder_files = glob.glob(folder + '\\*')
         remove_files(downloads_folder_files)
         logging.info("Finished '{}' cleaning cycle.".format(os.path.basename(folder)))
-    except:
-        logging.error("Failed cleaning '{}' folder.".format(os.path.basename(folder)))
+    except Exception as e:
+        logging.error("Failed cleaning '{}' folder{}.".format(os.path.basename(folder), e))
 
 
 def run_cleaner():
