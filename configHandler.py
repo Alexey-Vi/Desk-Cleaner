@@ -22,10 +22,10 @@ def get_configuration_list(file):
 
 def get_config_parameter(file, param):
     """
-
-    :param file:
-    :param param:
-    :return:
+    This method gets a specific parameter's state from the given config file.
+    :param file: the configuration file to read
+    :param param: which parameter to read
+    :return: returns the requested parameter's state
     """
     content = get_configuration_list(file)
     if content == "error":
@@ -33,3 +33,22 @@ def get_config_parameter(file, param):
     else:
         value = content[param]
         return value
+
+
+def set_config_parameter(file, param, setting):
+    """
+    This method sets a specific parameter's state in the given config file.
+    :param file: the configuration file to read
+    :param param: which parameter to read
+    :param setting: what to change the parameter to
+    """
+    try:
+        logging.info("Changing configuration '{}' to '{}'".format(param, setting))
+        with open(file, "r") as config:
+            content = json.load(config)
+        content[param] = setting
+        with open(file, "w") as config:
+            json.dump(content, config)
+    except Exception as e:
+        logging.error("{}\nFailed reading config file.".format(e))
+        main.close_app()
