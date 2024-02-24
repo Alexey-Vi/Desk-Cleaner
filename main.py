@@ -1,12 +1,13 @@
-import glob
 import os
 import shutil
 import datetime
 import logging
 import configHandler
+import Template
+import userInterface
 
-config_file = "Config.json"
-desktop_template = "Desktop Template.json"
+config_file = "config.json"
+templates_file = "templates.json"
 desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop")
 downloads_folder = os.path.join(os.environ["USERPROFILE"], "Downloads")
 log_file = "Logs.log"
@@ -41,8 +42,8 @@ def remove_files(file_list, daily_remove_flag=False):
                     logging.info('Folder successfully removed: {}.'.format(file))
             else:
                 logging.debug("No files older than {} days.".format(cycle_rate))
-    except:
-        logging.error('Failed to remove files: {}.'.format(file_list))
+    except Exception as e:
+        logging.error('{}\nFailed to remove files: {}.'.format(e, file_list))
 
 
 def file_reformat(files):
@@ -53,51 +54,42 @@ def file_reformat(files):
     return files
 
 
-def clean_desktop():
-    """
-    Takes the file list of the desktop folder and compares it to the list of allowed files from the template file.
-    Any files that do not exist in the template will get deleted on a daily basis.
-    """
-    logging.info("Starting 'desktop' cleaning cycle.")
-    try:
-        template_files = file_reformat(configHandler.get_config_parameter(desktop_template, machine_type))
-        desktop_files = file_reformat(glob.glob(desktop_folder + '\\*'))
-        files_to_delete = []
-        for file in desktop_files:
-            if os.path.basename(file.casefold()) not in (index.casefold() for index in template_files):
-                files_to_delete.append(file)
-        if len(files_to_delete) == 0:
-            logging.info("No files to delete from 'desktop' folder.")
-        else:
-            logging.info("Removing redundant files.")
-            remove_files(files_to_delete, True)
-            logging.error("Finished cleaning 'desktop' folder.")
-    except:
-        logging.error("Failed cleaning 'desktop' folder.")
+# def clean_folder():  # TODO need to refactor whole method
+#     """
+#     Takes the file list of the desktop folder and compares it to the list of allowed files from the template file.
+#     Any files that do not exist in the template will get deleted on a daily basis.
+#     """
+#     logging.info("Starting 'desktop' cleaning cycle.")
+#     try:
+#         template_files = file_reformat(configHandler.get_config_parameter(templates_file, machine_type))
+#         desktop_files = file_reformat(glob.glob(desktop_folder + '\\*'))
+#         files_to_delete = []
+#         for file in desktop_files:
+#             if os.path.basename(file.casefold()) not in (index.casefold() for index in template_files):
+#                 files_to_delete.append(file)
+#         if len(files_to_delete) == 0:
+#             logging.info("No files to delete from 'desktop' folder.")
+#         else:
+#             logging.info("Removing redundant files.")
+#             remove_files(files_to_delete, True)
+#             logging.error("Finished cleaning 'desktop' folder.")
+#     except Exception as e:
+#         logging.error("{}\nFailed cleaning 'desktop' folder.".format(e)
 
 
-def cycle_cleaner(folder):
-    """
-     Removes all files inside the specified folder that are older than the none daily cycle.
-    """
-    logging.info("Starting '{}' cleaning cycle.".format(os.path.basename(folder)))
-    try:
-        downloads_folder_files = glob.glob(folder + '\\*')
-        remove_files(downloads_folder_files)
-        logging.info("Finished '{}' cleaning cycle.".format(os.path.basename(folder)))
-    except Exception as e:
-        logging.error("Failed cleaning '{}' folder{}.".format(os.path.basename(folder), e))
+def manage_template_files():
+    template_list = []
+    config_keys = list(dict.keys(configHandler.get_configuration_list(config_file)))
+    for key in config_keys:
+        key = key.strip(' ', 'run')
+        template_name = key
+        template_files = configHandler.get_config_parameter(templates_file, key)
+        template_list.append(Template.Template(name=template_name, file_list=template_files))
+    return template_list
 
 
-def run_cleaner():
-    logging.info("Cleaning started.")
-    if configHandler.get_config_parameter(config_file, 'run desktop'):
-        clean_desktop()
-    if configHandler.get_config_parameter(config_file, 'run downloads'):
-        cycle_cleaner(downloads_folder)
-
-
-if __name__ == '_main_':
-    logging.info("Script started.")
-    run_cleaner()
+if __name__ == '__main__':
+    # logging.info("Script started.")
+    userInterface.start_window()
+    available_templates = manage_template_files()
     close_app()
