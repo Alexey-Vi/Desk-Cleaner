@@ -48,7 +48,7 @@ def set_config_parameter(file, param, setting):
             content = json.load(config)
         content[param] = setting
         with open(file, "w") as config:
-            json.dump(content, config)
+            json.dump(content, config, indent=2)
     except Exception as e:
         logging.error("{}\nFailed reading config file.".format(e))
         main.close_app()
