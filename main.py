@@ -3,10 +3,9 @@ import shutil
 import datetime
 import logging
 import configHandler
-import Template
+# import Template
 import userInterface
 
-config_file = "config.json"
 templates_file = "templates.json"
 desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop")
 downloads_folder = os.path.join(os.environ["USERPROFILE"], "Downloads")
@@ -90,6 +89,7 @@ def manage_template_files():
 
 if __name__ == '__main__':
     # logging.info("Script started.")
+    configHandler.handle_template_file(templates_file)
     userInterface.start_window()
-    available_templates = manage_template_files()
+    # available_templates = manage_template_files()
     close_app()
