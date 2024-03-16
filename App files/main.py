@@ -78,7 +78,7 @@ def remove_files(templates_to_clean):
 
 
 def create_main_window():
-    userInterface.deploy_start_window(len(templateHandler.get_list_of_template_names()))
+    userInterface.deploy_start_window()
 
 
 if __name__ == '__main__':
