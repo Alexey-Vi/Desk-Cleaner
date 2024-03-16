@@ -1,6 +1,8 @@
 import os
 import shutil
 import logging
+import sys
+
 import templateHandler
 import userInterface
 
@@ -13,7 +15,7 @@ logging.basicConfig(filename=log_file, format='%(asctime)s %(levelname)s: %(mess
 
 def close_app():
     logging.info("Closing app...\n")
-    quit()
+    sys.exit()
 
 
 def save_template(template_name, template_folder):
