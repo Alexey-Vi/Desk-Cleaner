@@ -145,7 +145,7 @@ def deploy_run_cleaner_window(selected_templates):
     run_cleaner_window.resizable(False, False)
 
     if len(selected_templates) == 0:
-        frm_window = tk.Frame(master=run_cleaner_window, padx=50, pady=50)
+        frm_window = tk.Frame(run_cleaner_window, padx=50, pady=50)
 
         lbl = tk.Label(frm_window, text="No Templates Selected")
         btn_cancel = tk.Button(frm_window, text="Close", width=25, height=2, command=run_cleaner_window.destroy)
