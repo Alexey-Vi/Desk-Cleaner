@@ -3,10 +3,7 @@ import logging
 import main
 import os
 
-templates_file = "templates.json"
-log_file = "Logs.log"
-logging.basicConfig(filename=log_file, format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO,
-                        datefmt='%m/%d/%Y %H:%M:%S')
+templates_file = "Desk-Cleaner\\templates.json"
 
 
 def get_templates_list():
