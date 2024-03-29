@@ -22,6 +22,27 @@ This is still a work in progress, so feel free to give feedback on which parts t
 * Smart cleaning -  After cleaning a folder, you are able to enable a check for if the template holds more files than the actual files in the folder.
                     If its the case, a prompt will appear asking whether or not you would like to overwrite the template file with the actual files.
 
+# How to run without exe
+
+1. Clone the repository:
+```sh
+git clone <repository_URL>
+```
+2. Navigate into the projects directory:
+```sh
+cd Desk-Cleaner
+```
+3. Activate the environment:
+```sh
+python -m venv venv
+.\venv\scripts\activate
+```
+4. Run project:
+```shell
+cd .\App_files\
+python -m main 
+```
+
 # How to run with exe
 
 Simply download the exe file and place it wherever you'd like to keep the project files.

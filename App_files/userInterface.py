@@ -1,4 +1,3 @@
-import logging
 import os
 import tkinter as tk
 from tkinter import ttk
@@ -81,7 +80,7 @@ def deploy_create_template_window(label, listbox):
                            [main.save_template(entry_input.get(), filedialog.askdirectory()), update_main_window(label, listbox), create_template_window.destroy()])
     btn_cancel = tk.Button(frm_inner_bot, text="Cancel", width=25, height=2, command=create_template_window.destroy)
 
-    # ent.bind('<Return>', btn_confirm.invoke())
+    ent.bind('<Return>', lambda e: btn_confirm.invoke())
 
     lbl.pack()
     ent.pack()
@@ -99,21 +98,14 @@ def deploy_delete_template_window(label, listbox):
     template names and will delete the relevant template from the 'templates.json'.
     :return: None
     """
-    delete_template_window = tk.Tk()
-    delete_template_window.title("Delete Template")
-    delete_template_window.resizable(False, False)
-
-    if len(templateHandler.get_templates_list()) == 0:
-        frm_window = tk.Frame(master=delete_template_window, padx=50, pady=50)
-
-        lbl = tk.Label(frm_window, text="No Templates Found")
-        btn_cancel = tk.Button(frm_window, text="Close", width=25, height=2, command=delete_template_window.destroy)
-
-        lbl.pack()
-        btn_cancel.pack(side=tk.RIGHT)
-        frm_window.pack()
+    if len(templateHandler.get_templates_list()) == 0:  # check if any templates are saved
+        deploy_no_templates_selected_window()
 
     else:
+        delete_template_window = tk.Tk()
+        delete_template_window.title("Delete Template")
+        delete_template_window.resizable(False, False)
+
         frm_window = tk.Frame(master=delete_template_window, padx=5, pady=5)
         frm_bot = tk.Frame(master=delete_template_window, padx=5, pady=5)
 
@@ -123,8 +115,10 @@ def deploy_delete_template_window(label, listbox):
         cmb_template_list = ttk.Combobox(frm_window, values=templateHandler.get_list_of_template_names(),
                                          textvariable=combobox_input)
         btn_confirm = tk.Button(frm_bot, text="Confirm", width=25, height=2, command=lambda:
-                                [templateHandler.remove_template(combobox_input.get()), update_main_window(label, listbox), delete_template_window.destroy()])
+                                delete_template_confirm_button(combobox_input.get(), label, listbox, delete_template_window))
         btn_cancel = tk.Button(frm_bot, text="Cancel", width=25, height=2, command=delete_template_window.destroy)
+
+        cmb_template_list.bind('<Return>', lambda e: btn_confirm.invoke())
 
         lbl.pack()
         cmb_template_list.pack()
@@ -141,21 +135,14 @@ def deploy_run_cleaner_window(selected_templates):
     :param selected_templates: The template folders to be cleared.
     :return: Nothing
     """
-    run_cleaner_window = tk.Tk()
-    run_cleaner_window.title("Run Cleaner")
-    run_cleaner_window.resizable(False, False)
-
     if len(selected_templates) == 0:
-        frm_window = tk.Frame(run_cleaner_window, padx=50, pady=50)
-
-        lbl = tk.Label(frm_window, text="No Templates Selected")
-        btn_cancel = tk.Button(frm_window, text="Close", width=25, height=2, command=run_cleaner_window.destroy)
-
-        lbl.pack()
-        btn_cancel.pack(side=tk.RIGHT)
-        frm_window.pack()
+        deploy_no_templates_selected_window()
 
     else:
+        run_cleaner_window = tk.Tk()
+        run_cleaner_window.title("Run Cleaner")
+        run_cleaner_window.resizable(False, False)
+
         frm_window = tk.Frame(run_cleaner_window, padx=5, pady=5)
         frm_bot = tk.Frame(frm_window, padx=5, pady=5)
 
@@ -228,21 +215,14 @@ def deploy_edit_template_window(label, listbox):
     Pressing the 'remove files' leads to the delete files from template window.
     :return: Nothing.
     """
-    edit_template_window = tk.Tk()
-    edit_template_window.title("Edit Template")
-    edit_template_window.resizable(False, False)
-
     if len(templateHandler.get_templates_list()) == 0:
-        frm_window = tk.Frame(edit_template_window, padx=50, pady=50)
-
-        lbl = tk.Label(text="No Templates Found", master=frm_window)
-        btn_cancel = tk.Button(frm_window, text="Close", width=25, height=2, command=edit_template_window.destroy)
-
-        lbl.pack()
-        btn_cancel.pack(side=tk.RIGHT)
-        frm_window.pack()
+        deploy_no_templates_selected_window()
 
     else:
+        edit_template_window = tk.Tk()
+        edit_template_window.title("Edit Template")
+        edit_template_window.resizable(False, False)
+
         frm_window = tk.Frame(edit_template_window, padx=5, pady=5)
         frm_bot = tk.Frame(edit_template_window, padx=5, pady=5)
 
@@ -252,7 +232,7 @@ def deploy_edit_template_window(label, listbox):
         cmb_template_list = ttk.Combobox(frm_window, values=templateHandler.get_list_of_template_names(),
                                          textvariable=combobox_input)
         btn_overwrite_template = tk.Button(frm_bot, text="Overwrite Template", width=25, height=2, command=lambda:
-                                           [main.save_template(combobox_input.get(), filedialog.askdirectory()), edit_template_window.destroy()])
+                                           overwrite_template_button(combobox_input.get(), edit_template_window))
         btn_remove_files_from_template = tk.Button(frm_bot, text="Remove Files", width=25, height=2, command=lambda:
                                                    [deploy_remove_files_from_template_window(label, listbox, combobox_input.get()), edit_template_window.destroy()])
         btn_cancel = tk.Button(frm_bot, text="Cancel", width=25, height=2, command=edit_template_window.destroy)
@@ -275,33 +255,54 @@ def deploy_remove_files_from_template_window(label, listbox, template_name):
     :param template_name:
     :return:
     """
-    remove_files_from_template_window = tk.Tk()
-    remove_files_from_template_window.title("Delete Files From Template")
-    remove_files_from_template_window.resizable(False, False)
+    if template_name == "":
+        deploy_no_templates_selected_window()
 
-    frm_window = tk.Frame(remove_files_from_template_window, padx=5, pady=5)
-    frm_bot = tk.Frame(remove_files_from_template_window, padx=5, pady=5)
+    else:
+        remove_files_from_template_window = tk.Tk()
+        remove_files_from_template_window.title("Delete Files From Template")
+        remove_files_from_template_window.resizable(False, False)
 
-    lbl = tk.Label(remove_files_from_template_window, text="Select file to remove, press done when complete.")
-    lb_files_to_remove_from_template = tk.Listbox(frm_window, selectmode=tk.MULTIPLE, width=30)
-    files_in_template = templateHandler.get_template_file_list(template_name)
-    for index in range(len(files_in_template)):
-        lb_files_to_remove_from_template.insert(index + 1, files_in_template[index])
-    scrollbar = ttk.Scrollbar(frm_window, orient=tk.VERTICAL, command=lb_files_to_remove_from_template.yview)
-    lb_files_to_remove_from_template['yscrollcommand'] = scrollbar.set
+        frm_window = tk.Frame(remove_files_from_template_window, padx=5, pady=5)
+        frm_bot = tk.Frame(remove_files_from_template_window, padx=5, pady=5)
 
-    btn_remove_file = tk.Button(frm_bot, text="Remove Files", width=25, height=2, command=lambda:
-                                [templateHandler.remove_files_from_template(template_name, get_listbox_variables(lb_files_to_remove_from_template, lb_files_to_remove_from_template.curselection())),
-                                 update_main_window(label, listbox), remove_files_from_template_window.destroy()])
-    btn_cancel = tk.Button(frm_bot, text="Cancel", width=25, height=2, command=remove_files_from_template_window.destroy)
+        lbl = tk.Label(remove_files_from_template_window, text="Select file to remove, press done when complete.")
+        lb_files_to_remove_from_template = tk.Listbox(frm_window, selectmode=tk.MULTIPLE, width=30)
+        files_in_template = templateHandler.get_template_file_list(template_name)
+        for index in range(len(files_in_template)):
+            lb_files_to_remove_from_template.insert(index + 1, files_in_template[index])
+        scrollbar = ttk.Scrollbar(frm_window, orient=tk.VERTICAL, command=lb_files_to_remove_from_template.yview)
+        lb_files_to_remove_from_template['yscrollcommand'] = scrollbar.set
+
+        btn_remove_file = tk.Button(frm_bot, text="Remove Files", width=25, height=2, command=lambda:
+                                    [templateHandler.remove_files_from_template(template_name, get_listbox_variables(lb_files_to_remove_from_template, lb_files_to_remove_from_template.curselection())),
+                                     update_main_window(label, listbox), remove_files_from_template_window.destroy()])
+        btn_cancel = tk.Button(frm_bot, text="Cancel", width=25, height=2, command=remove_files_from_template_window.destroy)
+
+        lb_files_to_remove_from_template.bind('<Return>', lambda e: btn_remove_file.invoke())
+
+        lbl.pack()
+        lb_files_to_remove_from_template.pack(side=tk.LEFT, fill=tk.BOTH)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        btn_remove_file.pack(side=tk.LEFT)
+        btn_cancel.pack(side=tk.RIGHT)
+        frm_window.pack()
+        frm_bot.pack()
+
+
+def deploy_no_templates_selected_window():
+    no_templates_selected = tk.Tk()
+    no_templates_selected.title("No Templates Selected")
+    no_templates_selected.resizable(False, False)
+
+    frm_window = tk.Frame(master=no_templates_selected, padx=50, pady=50)
+
+    lbl = tk.Label(frm_window, text="No Templates Selected")
+    btn_cancel = tk.Button(frm_window, text="Close", width=25, height=2, command=no_templates_selected.destroy)
 
     lbl.pack()
-    lb_files_to_remove_from_template.pack(side=tk.LEFT, fill=tk.BOTH)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-    btn_remove_file.pack(side=tk.LEFT)
     btn_cancel.pack(side=tk.RIGHT)
     frm_window.pack()
-    frm_bot.pack()
 
 
 def get_listbox_variables(listbox, listbox_selection):
@@ -322,3 +323,20 @@ def update_main_window(label, listbox):
     template_names = templateHandler.get_list_of_template_names()
     lb_values = tk.Variable(value=template_names)
     listbox.config(listvariable=lb_values)
+
+
+def overwrite_template_button(combobox_input, edit_template_window):
+    if combobox_input == "":
+        deploy_no_templates_selected_window()
+    else:
+        main.save_template(combobox_input, filedialog.askdirectory())
+    edit_template_window.destroy()
+
+
+def delete_template_confirm_button(combobox_input, label, listbox, delete_template_window):
+    if combobox_input == "":
+        deploy_no_templates_selected_window()
+    else:
+        templateHandler.remove_template(combobox_input)
+        update_main_window(label, listbox)
+    delete_template_window.destroy()
