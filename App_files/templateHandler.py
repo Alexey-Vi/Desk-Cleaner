@@ -102,6 +102,21 @@ def remove_template(template_name):
         logging.error("{}\nFailed removing template.".format(e))
 
 
+def add_files_to_template(template_name, files):
+    if template_name == "" or not files:
+        return
+    try:
+        with open(templates_file, 'r') as config:
+            content = json.load(config)
+        for file in files:
+            logging.info("Adding file: {}\tto template: {}".format(file, template_name))
+            content["template files"][template_name].append(os.path.basename(file))
+        with open(templates_file, 'w') as config:
+            json.dump(content, config, indent=2)
+    except Exception as e:
+        logging.error("{}\nFailed adding file to template.".format(e))
+
+
 def remove_files_from_template(template_name, files):
     """
     This method removes a single file from the template listing.
