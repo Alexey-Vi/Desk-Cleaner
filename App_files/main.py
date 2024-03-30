@@ -2,15 +2,14 @@ import os
 import shutil
 import logging
 import sys
-
 import templateHandler
 import userInterface
 
-desktop_folder = os.path.join(os.environ["USERPROFILE"], "Desktop")
-downloads_folder = os.path.join(os.environ["USERPROFILE"], "Downloads")
-log_file = "Logs.log"
+if not os.path.exists("Desk-Cleaner"):
+    os.mkdir("Desk-Cleaner")
+log_file = os.path.join("Desk-Cleaner", "Logs.log")
 logging.basicConfig(filename=log_file, format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO,
-                        datefmt='%m/%d/%Y %H:%M:%S')
+                    datefmt='%m/%d/%Y %H:%M:%S')
 
 
 def close_app():
